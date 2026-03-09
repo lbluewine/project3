@@ -110,7 +110,8 @@ def gerar_evolucao(dados):
     if not dados["medicamentos"]:
         return "Nenhum medicamento identificado."
 
-    lista_meds = ", ".join([m["texto"] for m in dados["medicamentos"]])
+    # LISTA EM FORMATO DE LINHAS
+    lista_meds = "\n".join([f"- {m['texto']}" for m in dados["medicamentos"]])
 
     controlados = []
     continuos = []
@@ -124,25 +125,21 @@ def gerar_evolucao(dados):
             continue
 
         if principio in medicacoes_controladas:
-
-            controlados.append((med["nome_original"], retorno))
+            controlados.append(retorno)
 
         elif principio not in medicacoes_agudas:
-
             continuos.append(retorno)
 
-    texto_retorno = ""
+    texto_retorno_controlado = ""
+    texto_retorno_continuo = ""
 
     if controlados:
 
-        lista = []
+        datas = [datetime.strptime(d, "%d/%m/%Y") for d in controlados]
+        menor = min(datas).strftime("%d/%m/%Y")
 
-        for nome, data in controlados:
-            lista.append(f"{nome} em {data}")
-
-        texto_retorno += (
-            "Medicamentos de uso controlado com previsão de nova dispensação: "
-            + ", ".join(lista) + ". "
+        texto_retorno_controlado = (
+            f"\nUso controlado: nova dispensação mediante receita médica a partir de {menor}."
         )
 
     if continuos:
@@ -150,41 +147,18 @@ def gerar_evolucao(dados):
         datas = [datetime.strptime(d, "%d/%m/%Y") for d in continuos]
         menor = min(datas).strftime("%d/%m/%Y")
 
-        texto_retorno += (
-            f"Medicamentos de uso contínuo com previsão de nova dispensação em {menor}."
+        texto_retorno_continuo = (
+            f"\nUso contínuo: nova dispensação prevista a partir de {menor}."
         )
 
     texto = (
-        f"Paciente comparece à farmácia para dispensação de medicamentos. "
-        f"Foram dispensados: {lista_meds}. "
-        f"Receita prescrita por {dados['profissional']} em {dados['data_prescricao']}. "
-        f"Orientado quanto ao uso correto das medicações. "
-        f"{texto_retorno}"
+        "Paciente comparece à farmácia para retirada de medicamentos.\n\n"
+        "Dispensação realizada:\n"
+        f"{lista_meds}\n\n"
+        f"Receita prescrita por {dados['profissional']} em {dados['data_prescricao']}.\n\n"
+        "Paciente orientado quanto ao uso correto das medicações."
+        f"{texto_retorno_controlado}"
+        f"{texto_retorno_continuo}"
     )
 
     return texto
-
-
-st.set_page_config(page_title="Gerador de Evolução", layout="centered")
-
-st.title("Gerador de Evolução de Dispensação")
-
-st.write("1. Ctrl+A na tela da dispensação")
-st.write("2. Ctrl+C")
-st.write("3. Cole abaixo")
-
-texto = st.text_area("Cole aqui o conteúdo copiado:", height=300)
-
-if st.button("Gerar evolução"):
-
-    dados = extrair_dados(texto)
-
-    evolucao = gerar_evolucao(dados)
-
-    st.subheader("Texto gerado")
-    st.text_area("Evolução", evolucao, height=200)
-
-    st.subheader("Medicamentos identificados")
-
-    for med in dados["medicamentos"]:
-        st.write("-", med["texto"])
