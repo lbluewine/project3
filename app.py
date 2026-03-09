@@ -162,3 +162,28 @@ def gerar_evolucao(dados):
     )
 
     return texto
+
+
+st.set_page_config(page_title="Gerador de Evolução", layout="centered")
+
+st.title("Gerador de Evolução de Dispensação")
+
+st.write("1. Ctrl+A na tela da dispensação")
+st.write("2. Ctrl+C")
+st.write("3. Cole abaixo")
+
+texto = st.text_area("Cole aqui o conteúdo copiado:", height=300)
+
+if st.button("Gerar evolução"):
+
+    dados = extrair_dados(texto)
+
+    evolucao = gerar_evolucao(dados)
+
+    st.subheader("Texto gerado")
+    st.text_area("Evolução", evolucao, height=200)
+
+    st.subheader("Medicamentos identificados")
+
+    for med in dados["medicamentos"]:
+        st.write("-", med["texto"])
