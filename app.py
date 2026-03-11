@@ -56,8 +56,8 @@ def extrair_dados(texto):
 
     dados = {
         "paciente": "Não identificado",
-        "profissional": "Não identificado",
-        "data_prescricao": "Não identificada",
+        "profissional": "_____________",
+        "data_prescricao": "___________",
         "medicamentos": []
     }
 
@@ -187,3 +187,4 @@ if st.button("Gerar evolução"):
 
     for med in dados["medicamentos"]:
         st.write("-", med["texto"])
+
